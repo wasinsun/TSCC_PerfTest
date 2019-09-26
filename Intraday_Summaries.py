@@ -51,7 +51,7 @@ class IntradaySummariesModel:
     def setCount(self,count):
         self.queryString['count'] = count
 
-    def setSessions(self,sessions):
+    def setSessions(self,count):
         self.queryString['sessions'] = sessions
     
     def setDateByStartEnd(self,start,end):

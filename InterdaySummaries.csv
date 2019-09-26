@@ -1,0 +1,13 @@
+Test Name,RIC,Interval,Start,End,Adjustments,Field,Count
+Daily all data with fields,EW.N,P1D,now-2400M,now,,HIGH_1_-_LOW_1_-_OPEN_PRC_-_TRDPRC_1_-_SETTLE_-_OFF_CLOSE_-_HST_CLOSE_-_NUM_MOVES_-_ACVOL_UNS,
+Daily 5 months data with fields,EW.N,P1D,now-5M,now,,HIGH_1_-_LOW_1_-_OPEN_PRC_-_TRDPRC_1_-_SETTLE_-_OFF_CLOSE_-_HST_CLOSE_-_NUM_MOVES_-_ACVOL_UNS,
+Daily 12 months data with fields,.EW.N,P1D,now-12M,now,,HIGH_1_-_LOW_1_-_OPEN_PRC_-_TRDPRC_1_-_SETTLE_-_OFF_CLOSE_-_HST_CLOSE_-_NUM_MOVES_-_ACVOL_UNS,
+Daily 30 months data with fields,EW.N,P1D,now-30M,now,,HIGH_1_-_LOW_1_-_OPEN_PRC_-_TRDPRC_1_-_SETTLE_-_OFF_CLOSE_-_HST_CLOSE_-_NUM_MOVES_-_ACVOL_UNS,
+Daily 48 months data with fields,EW.N,P1D,now-48M,now,,HIGH_1_-_LOW_1_-_OPEN_PRC_-_TRDPRC_1_-_SETTLE_-_OFF_CLOSE_-_HST_CLOSE_-_NUM_MOVES_-_ACVOL_UNS,
+Dialy single unadjusted data with fields,STEL.SI,P1D,,,unadjusted,TRDPRC_1,1
+Dialy single point data,USD1YFSR=X,P1D,,,,,1
+Dialy unadjusted data 25 points,IBM,P1D,,,unadjusted,TRDPRC_1,25
+Dialy unadjusted data 25 points with fields,IBM,P1D,,,unadjusted,THIGH_1_-_LOW_1_-_OPEN_PRC_-_TRDPRC_1_-_SETTLE_-_OFF_CLOSE_-_HST_CLOSE_-_NUM_MOVES_-_ACVOL_UNSRDPRC_1,25
+Dialy all adjustement,Cc1,P1D,,,exchangeCorrection_-_manualCorrection_-_CCH_-_CRE_-_RPO_-_RTS,,
+Daily data 1M points,Eur=,P1D,,,,BID_-_OPEN_BID_-_MID_PRICE_-_BID_HIGH_1_-_BID_LOW_1_-_NUM_BIDS,1000000
+Daily 12 months data,.TRNLTTFFVMc3,P1D,now-12M,now,,,

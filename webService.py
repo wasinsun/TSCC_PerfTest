@@ -1,11 +1,14 @@
 from config import Config
 import json
 from Interday_Summaries import InterdaySummariesModel
+import logging
+import datetime
 
 def runTest():
     config = Config()
+    testSuites = config.getTestSuites()
     interdaySummariesTestCase(config)
-
+    
 def loadTestData(path):
     testcases = []
     try:
@@ -16,12 +19,12 @@ def loadTestData(path):
     return testcases[1:]
     
 def interdaySummariesTestCase(config):
-    testSuite = "TestSuite_1"
+    testSuite = "Interday_Summaries"
     roundOfTest = config.getRoundOfTest(testSuite)
     testSuiteEndPoint= config.getTestSuiteEndPoint(testSuite)
     endPointData = config.getEndPointsData(testSuiteEndPoint)
     headerData = config.getHeaderData(testSuite)
-    testDataFile = config.getTestDataFile(testSuite, 'InterdaySummariesTestCase')
+    testDataFile = config.getTestDataFile(testSuite, 'InterdaySummaries')
     csvData = loadTestData(testDataFile)
     for e in csvData:
         data = e.split(',')
@@ -42,6 +45,8 @@ def interdaySummariesTestCase(config):
         interdaySummariesModel.setFields(fields)
         requestURL = interdaySummariesModel.getURL()
 
-        print('url: {}'.format(requestURL))
+        # print('url: {}'.format(requestURL))
+        logging.basicConfig(filename='./log/interdaySummariesTestCase{}.log'.format(datetime.datetime.now().strftime('%Y-%m-%dT%H_%M_%S')), level=logging.DEBUG)
+        logging.debug(requestURL)
 
 runTest()

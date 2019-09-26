@@ -5,7 +5,7 @@ import datetime,calendar
 config = Config()
 class InterdaySummariesModel:
     def __init__(self):
-        self.url = self.setUrl(endpoint=config.getTestCasesEndPointURL('TestSuite_1'))
+        self.url = self.setUrl(endpoint=config.getTestCasesEndPointURL('Interday_Summaries'))
         self.ric = ''
         self.queryString = {
             "interval":"",
@@ -25,7 +25,7 @@ class InterdaySummariesModel:
             if self.queryString[k]=="":
                 self.queryString.pop(k)
 
-        path = "data/historical-pricing/v1/views/"
+        path = "data/historical-pricing/v1/views"
         URL = "{url}/{path}/{ric}?{query}".format(url=self.url,path=path,ric=self.ric,query=urllib.parse.urlencode(self.queryString))
         return URL
     
@@ -60,7 +60,7 @@ class InterdaySummariesModel:
                     monthToDayCount = 0
                     now  = datetime.datetime.now()
                     for i in range(int(start[:-1]), 0, -1):
-                        monthRange = calendar.monthrange(now.year-(i/now.month), now.month - (i%now.month))[1]
+                        monthRange = calendar.monthrange(now.year-(i//now.month), now.month - (i%now.month))[1]
                         monthToDayCount += monthRange
                     startDate = datetime.datetime.now() - datetime.timedelta(days=monthToDayCount)
                 elif start[-1] == "W":

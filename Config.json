@@ -20,8 +20,8 @@
 		}
     },
     "TestSuites":{
-        "TestSuite_1": {
-            "EndPoint": "INTRA_POD_INT_2",
+        "Interday_Summaries": {
+            "EndPoint": "INTRA_VIP_POD_INT",
             "RoundOfTest": 10,
             "Header": {"applicationID": "perfTest",
                 "Accept-Encoding": "gzip, deflate",
@@ -35,12 +35,12 @@
                 "x-ts-productID": "E2EPerf"
             },
             "TestDataFile":{
-                "IntradayHistoricalPricingCRDSingleRicTestCase":"./IntradayHistoricalPricingQualityReview.csv",
-                "IntradayHistoricalPricingForEikonTestCase":"./IntradayHistoricalPricingForEikonTestData.csv",
-                "InterdaySummariesTestCase":"./InterdaySummariesTestCase.csv"
+                "InterdayHistoricalPricingCRDSingleRicTestCase":"./InterdayHistoricalPricingQualityReview.csv",
+                "InterdayHistoricalPricingForEikonTestCase":"./InterdayHistoricalPricingForEikonTestData.csv",
+                "InterdaySummaries":"./InterdaySummaries.csv"
             }
         },
-        "TestSuite_2": {
+        "Intraday_Summaries": {
             "EndPoint": "INTRA_POD_INT_2",
             "RoundOfTest": 10,
             "Header": {"applicationID": "perfTest",
@@ -55,10 +55,10 @@
                 "x-ts-productID": "E2EPerf"
             },
             "TestDataFile":{
-                "EODHistoricalPricingCRDSingleRicTestCase":"./Interday_HistoricalPricingCRDSingleRicTestData.csv",
-				"EODHistoricalPricingEikonSingleRicTestCase":"./Interday_HistoricalPricingEikonSingleRicTestData.csv",
-				"SingleRicTestCase":"./Interday_SingleRicTestData.csv",
-				"MultiRicTestCase":"./Interday_MultipleRicTestData.csv"
+                "EODHistoricalPricingCRDSingleRicTestCase":"./Intraday_HistoricalPricingCRDSingleRicTestData.csv",
+				"EODHistoricalPricingEikonSingleRicTestCase":"./Intraday_HistoricalPricingEikonSingleRicTestData.csv",
+				"SingleRicTestCase":"./Intraday_SingleRicTestData.csv",
+				"MultiRicTestCase":"./Intraday_MultipleRicTestData.csv"
             }
         }
     }
