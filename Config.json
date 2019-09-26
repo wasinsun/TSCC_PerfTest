@@ -1,0 +1,65 @@
+{
+    "EndPoints": {
+        "INTRA_VIP_POD_INT": {
+			"Hostname": "daap-int.int.thomsonreuters.com",
+			"User": "",
+			"Password": "",
+			"Path_BC": ""
+		},
+		"INTRA_POD_INT_1": {
+			"Hostname": "c940jhxiap001.int.thomsonreuters.com",
+			"User": "cloud",
+			"Password": "notwest",
+			"Path_BC": "/data/intradaytsws/BreadcrumbLogs"
+		},
+		"INTRA_POD_INT_2": {
+			"Hostname": "c464zebiap002.int.thomsonreuters.com",
+			"User": "cloud",
+			"Password": "notwest",
+			"Path_BC": "/data/intradaytsws/BreadcrumbLogs"
+		}
+    },
+    "TestSuites":{
+        "TestSuite_1": {
+            "EndPoint": "INTRA_POD_INT_2",
+            "RoundOfTest": 10,
+            "Header": {"applicationID": "perfTest",
+                "Accept-Encoding": "gzip, deflate",
+                "Content-Type": "application/json",
+                "E2EBusinessProcessID": "businessID",
+                "E2ETraceBC": "True",
+                "E2ETraceRequestID": "guid",
+                "x-ts-applicationID": "E2EPerf",
+                "x-ts-uuid": "permission",
+                "x-ts-requestID": "guid",
+                "x-ts-productID": "E2EPerf"
+            },
+            "TestDataFile":{
+                "IntradayHistoricalPricingCRDSingleRicTestCase":"./IntradayHistoricalPricingQualityReview.csv",
+                "IntradayHistoricalPricingForEikonTestCase":"./IntradayHistoricalPricingForEikonTestData.csv",
+                "InterdaySummariesTestCase":"./InterdaySummariesTestCase.csv"
+            }
+        },
+        "TestSuite_2": {
+            "EndPoint": "INTRA_POD_INT_2",
+            "RoundOfTest": 10,
+            "Header": {"applicationID": "perfTest",
+                "Accept-Encoding": "gzip, deflate",
+                "Content-Type": "application/json",
+                "E2EBusinessProcessID": "businessID",
+                "E2ETraceBC": "True",
+                "E2ETraceRequestID": "guid",
+                "x-ts-applicationID": "E2EPerf",
+                "x-ts-uuid": "permission",
+                "x-ts-requestID": "guid",
+                "x-ts-productID": "E2EPerf"
+            },
+            "TestDataFile":{
+                "EODHistoricalPricingCRDSingleRicTestCase":"./Interday_HistoricalPricingCRDSingleRicTestData.csv",
+				"EODHistoricalPricingEikonSingleRicTestCase":"./Interday_HistoricalPricingEikonSingleRicTestData.csv",
+				"SingleRicTestCase":"./Interday_SingleRicTestData.csv",
+				"MultiRicTestCase":"./Interday_MultipleRicTestData.csv"
+            }
+        }
+    }
+}

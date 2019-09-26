@@ -1,0 +1,4 @@
+TestCase,Ric,Interval,Start,End,Adjustment,Fields,Count
+EODHistoricalPricingEikonSingleRic_P1D_1Point_1,VOD.L,P1D,,,,,1
+EODHistoricalPricingEikonSingleRic_P1D_1Point_2,EW.N,P1D,,,,,1
+EODHistoricalPricingEikonSingleRic_P1D_1Point_3,TRFRBFVDc1,P1D,,,,,1

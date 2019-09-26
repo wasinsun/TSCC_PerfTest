@@ -1,0 +1,1094 @@
+---
+swagger: "2.0"
+info:
+  version: "1.0.6"
+  title: Time Series Historical Pricing Web Service
+  description: Retrieve Intraday and Interday time series historical pricing data. The returned response will be in json tabular format.
+
+produces:
+  - application/json
+basePath: "/data/historical-pricing/v1"
+securityDefinitions:
+  sts_auth:
+    type: oauth2
+    tokenUrl: /auth/oauth2/beta1/token
+    flow: password
+    scopes:
+      trapi.data.historical-pricing.summaries.read: Views summaries scope
+      trapi.data.historical-pricing.events.read: Views events scope
+paths:
+  /views/interday-summaries/{universe}:
+    x-summary: Interday historical pricing summaries data
+    get:
+      description: To retrieve time series pricing Interday summaries data (i.e. bar data). The default timeout is 3 minutes.
+      x-tr-integration:
+        limits:
+          - type: operationRate
+            rate: 1000
+            burst: 1000
+          - type: userRate
+            rate: 10
+            burst: 10
+        type: http
+        httpMethod: GET
+        uri: <% .uri_inter %>/data/historical-pricing/v1/views/summaries/{universe}
+        passthroughBehavior: WHEN_NO_TEMPLATE
+        requestParameters:
+          integration.request.header.x-ts-requestID: context.requestID
+          integration.request.header.x-ts-uuid: context.uuid
+          integration.request.header.x-ts-applicationID: context.clientID
+          integration.request.header.x-ts-productID: "'EDS_AGW:PRICING'"
+          integration.request.path.universe: method.request.path.universe
+          integration.request.querystring.interval: method.request.querystring.interval
+          integration.request.querystring.start: method.request.querystring.start
+          integration.request.querystring.end: method.request.querystring.end
+          integration.request.querystring.fields: method.request.querystring.fields
+          integration.request.querystring.adjustments: method.request.querystring.adjustments
+          integration.request.querystring.count: method.request.querystring.count
+          integration.request.querystring.summaryTimestampLabel: method.request.querystring.summaryTimestampLabel
+        responses:
+          200:
+            statusCode: "200"
+            responseParameters:
+              method.response.header.Access-Control-Allow-Origin: "'*'"
+              method.response.header.Access-Control-Expose-Headers: "'authorization, content-encoding, content-length, content-type, x-tr-requestid, x-tr-correlationid'"
+          400:
+            statusCode: "400"
+            responseParameters:
+              method.response.header.Access-Control-Allow-Origin: "'*'"
+              method.response.header.Access-Control-Expose-Headers: "'authorization, content-encoding, content-length, content-type, x-tr-requestid, x-tr-correlationid'"
+          404:
+            statusCode: "404"
+            responseParameters:
+              method.response.header.Access-Control-Allow-Origin: "'*'"
+              method.response.header.Access-Control-Expose-Headers: "'authorization, content-encoding, content-length, content-type, x-tr-requestid, x-tr-correlationid'"
+          500:
+            statusCode: "500"
+            responseParameters:
+              method.response.header.Access-Control-Allow-Origin: "'*'"
+              method.response.header.Access-Control-Expose-Headers: "'authorization, content-encoding, content-length, content-type, x-tr-requestid, x-tr-correlationid'"
+      parameters:
+        - name: universe
+          in: path
+          description: The entity universe e.g. RIC name
+          required: true
+          type: string
+
+        - name: interval
+          in: query
+          description: | 
+            The consolidation interval in ISO8601. The support intervals are P1D, P7D, P1W, P1M, P3M, P12M, and P1Y.
+            When interval is not specified, backend will return the lowest supported interday interval.
+          required: false
+          type: string
+
+        - name: start
+          in: query
+          description: |
+            * The start of the query is in ISO8601 with local date only (e.g., 2018-12-24). If the time is supplied, it will be ignored.
+            * See more details on "Start / End / Count Behavior" in Reference.
+          required: false
+          type: string
+          
+        - name: end
+          in: query
+          description: |
+            * The end of the query is in ISO8601 with local date only (e.g., 2018-01-01). If the time is supplied, it will be ignored.
+            * See more details on "Start / End / Count Behavior" in Reference.
+          required: false
+          type: string
+
+        - name: adjustments
+          in: query
+          description: |
+            The list of adjustment types (comma delimiter) that tells the system whether to apply or not apply CORAX (Corporate Actions) events or exchange/manual corrections to historical time series data.
+            * If _unspecified_, the response will be controlled by each back-end service with the proper adjustments in the response so that the clients know which adjustment types are applied by default. In this case, the returned data will be applied with exchange and manual corrections as well as being applied with CORAX adjustments.
+            * If _specified_, it means that the clients want to get some specific adjustment types applied or even unadjusted.
+
+            Normally, the back-end should strictly serve what clients need. However, if the back-end cannot support them, back-end can still return the form that the back-end supports with the proper adjustments in the response together with status block (if applicable) instead of an error message.
+
+            The supported values of adjustments :
+            * unadjusted - Not apply both exchange/manual corrections and CORAX
+            * exchangeCorrection - Apply exchange correction adjustment to historical pricing
+            * manualCorrection - Apply manual correction adjustment to historical pricing i.e. annotations made by content analysts
+            * CCH - Apply Capital Change adjustment to historical Pricing due to Corporate Actions e.g. stock split
+            * CRE - Apply Currency Redenomination adjustment when there is redenomination of currency
+            * RPO - Apply Reuters Price Only adjustment to adjust historical price only not volume
+            * RTS - Apply Reuters TimeSeries adjustment to adjust both historical price and volume
+            
+            Notes:
+            1. Summaries data will always have exchangeCorrection and manualCorrection applied. If the request is explicitly asked for uncorrected data, a status block will be returned along with the corrected data saying "Uncorrected summaries are currently not supported".
+            2. unadjusted will be ignored when other values are specified.
+
+            Limitations:
+            Adjustment behaviors listed in the limitation section may be changed or improved in the future.
+            1. In case of any combination of correction types is specified (i.e. exchangeCorrection or manualCorrection), all correction types will be applied to data in applicable event types.
+            2. In case of any combination of CORAX is specified (i.e. CCH, CRE, RPO, and RTS), all CORAX will be applied to data in applicable event types.
+          required: false
+          type: array
+          collectionFormat: csv
+          uniqueItems: true
+          items:
+            type: string
+            enum:
+              - unadjusted
+              - exchangeCorrection
+              - manualCorrection
+              - CCH
+              - CRE
+              - RPO
+              - RTS
+
+        - name: count
+          in: query
+          description: The maximum number of data returned. If count is smaller than the total amount of data of the time range specified, some data (the oldest) will not be delivered. To retrieve all available data with in the time range specified, this parameter should not be specified. The returned data could be less than the number requested if there are not enough data with in the time range specified. If not specified, count will default to 20 unless both the start and end parameters are also specified. This parameter has no maximum limit and the mininum value for this parameter is 1. Negative value is not supported. See more details on "Start / End / Count Behavior" in Reference.
+          required: false
+          type: integer
+          minimum: 1
+
+        - name: fields
+          in: query
+          description: |
+            The comma separated list of fields that are to be returned in the response. The fields value is case-sensitive, can be specified only with alphanumeric or underscore characters, and cannot be empty.
+            If the requested fields are not valid or not available for the given RIC universe, the back-end still returns the response of the valid fields (if available) together with the status block to indicate the unsupported fields.
+          required: false
+          type: array
+          collectionFormat: csv
+          items:
+            type: string
+            
+        - name: summaryTimestampLabel
+          in: query
+          description: |
+            The pattern of timestamp label in the response
+
+            The supported values of summaryTimestampLabel are as follows :
+            * startPeriod - The timestamps of returned data are labelled using the start of the corresponding summary periods.
+            * endPeriod - The timestamps of returned data are labelled using the end of the corresponding summary periods.
+
+            Notes:
+              1. If this parameter is not specified, the API behaves as if **endPeriod** is specified.
+              2. For more information, please check the reference page.
+
+          required: false
+          type: string
+          enum:
+            - startPeriod
+            - endPeriod
+
+      responses:
+        200:
+          description: Successful response
+          schema:
+            $ref: "#/definitions/historicalPricingData"
+        default:
+          description: Error response
+          schema:
+            $ref: "#/definitions/error"
+      security:
+        - sts_auth:
+          - trapi.data.historical-pricing.summaries.read
+    options: # CORS pre-flight request handler
+      x-tr-integration:
+        type: mock
+        httpMethod: GET
+        uri: "http://localhost/"
+        passthroughBehavior: WHEN_NO_TEMPLATE
+        responses:
+          200:
+            responseParameters:
+              method.response.header.Access-Control-Allow-Origin: "'*'"
+              method.response.header.Access-Control-Allow-Headers: "'authorization, content-encoding, content-length, content-type, x-tr-requestid, x-tr-correlationid'"
+      parameters:
+        - in: path
+          name: universe
+          type: string
+          required: true
+      responses:
+        200:
+          description: Generic OPTIONS response
+  /views/intraday-summaries/{universe}:
+    x-summary: Intraday historical pricing summaries data
+    get:
+      description: To retrieve time series pricing Intraday summaries data (i.e. bar data). The default timeout is 3 minutes.
+      x-tr-integration:
+        limits:
+          - type: operationRate
+            rate: 290
+            burst: 290
+          - type: userRate
+            rate: 10
+            burst: 10
+        type: http
+        httpMethod: GET
+        uri: <% .uri_intra %>/data/historical-pricing/v1/views/summaries/{universe}
+        passthroughBehavior: WHEN_NO_TEMPLATE
+        requestParameters:
+          integration.request.header.x-ts-requestID: context.requestID
+          integration.request.header.x-ts-uuid: context.uuid
+          integration.request.header.x-ts-applicationID: context.clientID
+          integration.request.header.x-ts-productID: "'EDS_AGW:PRICING'"
+          integration.request.path.universe: method.request.path.universe
+          integration.request.querystring.interval: method.request.querystring.interval
+          integration.request.querystring.start: method.request.querystring.start
+          integration.request.querystring.end: method.request.querystring.end
+          integration.request.querystring.fields: method.request.querystring.fields
+          integration.request.querystring.adjustments: method.request.querystring.adjustments
+          integration.request.querystring.count: method.request.querystring.count
+          integration.request.querystring.sessions: method.request.querystring.sessions
+          integration.request.querystring.summaryTimestampLabel: method.request.querystring.summaryTimestampLabel
+        responses:
+          200:
+            statusCode: "200"
+            responseParameters:
+              method.response.header.Access-Control-Allow-Origin: "'*'"
+              method.response.header.Access-Control-Expose-Headers: "'authorization, content-encoding, content-length, content-type, x-tr-requestid, x-tr-correlationid'"
+          400:
+            statusCode: "400"
+            responseParameters:
+              method.response.header.Access-Control-Allow-Origin: "'*'"
+              method.response.header.Access-Control-Expose-Headers: "'authorization, content-encoding, content-length, content-type, x-tr-requestid, x-tr-correlationid'"
+          404:
+            statusCode: "404"
+            responseParameters:
+              method.response.header.Access-Control-Allow-Origin: "'*'"
+              method.response.header.Access-Control-Expose-Headers: "'authorization, content-encoding, content-length, content-type, x-tr-requestid, x-tr-correlationid'"
+          500:
+            statusCode: "500"
+            responseParameters:
+              method.response.header.Access-Control-Allow-Origin: "'*'"
+              method.response.header.Access-Control-Expose-Headers: "'authorization, content-encoding, content-length, content-type, x-tr-requestid, x-tr-correlationid'"
+      parameters:
+        - name: universe
+          in: path
+          description: The entity universe e.g. RIC name
+          required: true
+          type: string
+
+        - name: interval
+          in: query
+          description: | 
+            The consolidation interval in ISO8601. The support intervals are PT1M, PT5M, PT10M, PT30M, PT60M, and PT1H.
+            When interval is not specified, backend will return in the PT1M interval.
+          required: false
+          type: string
+
+        - name: start
+          in: query
+          description: |
+            * The start date and timestamp of the query is in ISO8601 with UTC only e.g 2018-12-24T09:00:00.000000000Z.          
+            * Local time is not support.
+            * This parameter support time up to nanoseconds granularity. For more details on minute summaries boundary, see "Minute Summaries Boundary" in Reference.
+            * See more details on "Start / End / Count Behavior" in Reference.
+          required: false
+          type: string
+          
+        - name: end
+          in: query
+          description: |
+            * The end date and timestamp of the query is in ISO8601 with UTC only e.g 2018-12-24T09:00:00.000000000Z.          
+            * Local time is not support.
+            * This parameter support time up to nanoseconds granularity. For more details on minute summaries boundary, see "Minute Summaries Boundary" in Reference.
+            * See more details on "Start / End / Count Behavior" in Reference.
+          required: false
+          type: string
+
+        - name: adjustments
+          in: query
+          description: |
+            The list of adjustment types (comma delimiter) that tells the system whether to apply or not apply CORAX (Corporate Actions) events or exchange/manual corrections to historical time series data.
+            * If _unspecified_, the response will be controlled by each back-end service with the proper adjustments in the response so that the clients know which adjustment types are applied by default. In this case, the returned data will be applied with exchange and manual corrections as well as being applied with CORAX adjustments.
+            * If _specified_, it means that the clients want to get some specific adjustment types applied or even unadjusted.
+
+            Normally, the back-end should strictly serve what clients need. However, if the back-end cannot support them, back-end can still return the form that the back-end supports with the proper adjustments in the response together with status block (if applicable) instead of an error message.
+
+            The supported values of adjustments :
+            * unadjusted - Not apply both exchange/manual corrections and CORAX
+            * exchangeCorrection - Apply exchange correction adjustment to historical pricing
+            * manualCorrection - Apply manual correction adjustment to historical pricing i.e. annotations made by content analysts
+            * CCH - Apply Capital Change adjustment to historical Pricing due to Corporate Actions e.g. stock split
+            * CRE - Apply Currency Redenomination adjustment when there is redenomination of currency
+            * RPO - Apply Reuters Price Only adjustment to adjust historical price only not volume
+            * RTS - Apply Reuters TimeSeries adjustment to adjust both historical price and volume
+            
+            Notes:
+            1. Summaries data will always have exchangeCorrection and manualCorrection applied. If the request is explicitly asked for uncorrected data, a status block will be returned along with the corrected data saying "Uncorrected summaries are currently not supported".
+            2. unadjusted will be ignored when other values are specified.
+
+            Limitations:
+            Adjustment behaviors listed in the limitation section may be changed or improved in the future.
+            1. In case of any combination of correction types is specified (i.e. exchangeCorrection or manualCorrection), all correction types will be applied to data in applicable event types.
+            2. In case of any combination of CORAX is specified (i.e. CCH, CRE, RPO, and RTS), all CORAX will be applied to data in applicable event types.
+          required: false
+          type: array
+          collectionFormat: csv
+          uniqueItems: true
+          items:
+            type: string
+            enum:
+              - unadjusted
+              - exchangeCorrection
+              - manualCorrection
+              - CCH
+              - CRE
+              - RPO
+              - RTS
+
+        - name: count
+          in: query
+          description: The maximum number of data returned. If count is smaller than the total amount of data of the time range specified, some data (the oldest) will not be delivered. To retrieve all available data with in the time range specified, this parameter should not be specified. The returned data could be less than the number requested if there are not enough data with in the time range specified. If not specified, count will default to 20 unless both the start and end parameters are also specified. The mininum value for this parameter is 1. Negative value is not supported. See more details on "Start / End / Count Behavior" in Reference.
+          required: false
+          type: integer
+          minimum: 1
+
+        - name: fields
+          in: query
+          description: |
+            The comma separated list of fields that are to be returned in the response. The fields value is case-sensitive, can be specified only with alphanumeric or underscore characters, and cannot be empty.
+            If the requested fields are not valid or not available for the given RIC universe, the back-end still returns the response of the valid fields (if available) together with the status block to indicate the unsupported fields.
+          required: false
+          type: array
+          collectionFormat: csv
+          items:
+            type: string
+
+        - name: sessions
+          in: query
+          description: |
+            The list of market session classification (comma delimiter) that tells the system to return historical time series data based on the market session definition (market open/market close).
+            * If _unspecified_, all data within the query range will be returned without taking market session definition into consideration.
+            * If _specified_, only data from specific market session classification within the query range will be returned.
+
+            The supported values of market session classification are:
+            * normal - Normal market session
+            * pre - Pre-market session
+            * post - Post-market session
+
+          required: false
+          type: array
+          collectionFormat: csv
+          uniqueItems: true
+          items:
+            type: string
+            enum:
+              - normal
+              - pre
+              - post
+
+        - name: summaryTimestampLabel
+          in: query
+          description: |
+            The pattern of timestamp label in the response
+
+            The supported values of summaryTimestampLabel are as follows :
+            * startPeriod - The timestamps of returned data are labelled using the start of the corresponding summary periods.
+            * endPeriod - The timestamps of returned data are labelled using the end of the corresponding summary periods.
+
+            Notes:
+              1. If this parameter is not specified, the API behaves as if **startPeriod** is specified.
+              2. For more information, please check the reference page.
+
+          required: false
+          type: string
+          enum:
+            - startPeriod
+            - endPeriod
+
+      responses:
+        200:
+          description: Successful response
+          schema:
+            $ref: "#/definitions/historicalPricingData"
+        default:
+          description: Error response
+          schema:
+            $ref: "#/definitions/error"
+      security:
+        - sts_auth:
+          - trapi.data.historical-pricing.summaries.read
+    options: # CORS pre-flight request handler
+      x-tr-integration:
+        type: mock
+        httpMethod: GET
+        uri: "http://localhost/"
+        passthroughBehavior: WHEN_NO_TEMPLATE
+        responses:
+          200:
+            responseParameters:
+              method.response.header.Access-Control-Allow-Origin: "'*'"
+              method.response.header.Access-Control-Allow-Headers: "'authorization, content-encoding, content-length, content-type, x-tr-requestid, x-tr-correlationid'"
+      parameters:
+        - in: path
+          name: universe
+          type: string
+          required: true
+      responses:
+        200:
+          description: Generic OPTIONS response
+  /views/events/{universe}:
+    x-summary: Intraday historical pricing events data
+    get:
+      description: To retrieve time series pricing events (i.e. trades, quotes and corrections) data. The default timeout is 3 minutes.
+      x-tr-integration:
+        limits:
+          - type: operationRate
+            rate: 190
+            burst: 190
+          - type: userRate
+            rate: 10
+            burst: 10
+        type: http
+        httpMethod: GET
+        uri: <% .uri_intra %>/data/historical-pricing/v1/views/events/{universe}
+        passthroughBehavior: WHEN_NO_TEMPLATE
+        requestParameters:
+          integration.request.header.x-ts-requestID: context.requestID
+          integration.request.header.x-ts-uuid: context.uuid
+          integration.request.header.x-ts-applicationID: context.clientID
+          integration.request.header.x-ts-productID: "'EDS_AGW:PRICING'"
+          integration.request.path.universe: method.request.path.universe
+          integration.request.querystring.eventTypes: method.request.querystring.eventTypes
+          integration.request.querystring.start: method.request.querystring.start
+          integration.request.querystring.end: method.request.querystring.end
+          integration.request.querystring.count: method.request.querystring.count
+          integration.request.querystring.fields: method.request.querystring.fields
+          integration.request.querystring.adjustments: method.request.querystring.adjustments
+          integration.request.querystring.sessions: method.request.querystring.sessions
+        responses:
+          200:
+            statusCode: "200"
+            responseParameters:
+              method.response.header.Access-Control-Allow-Origin: "'*'"
+              method.response.header.Access-Control-Expose-Headers: "'authorization, content-encoding, content-length, content-type, x-tr-requestid, x-tr-correlationid'"
+          400:
+            statusCode: "400"
+            responseParameters:
+              method.response.header.Access-Control-Allow-Origin: "'*'"
+              method.response.header.Access-Control-Expose-Headers: "'authorization, content-encoding, content-length, content-type, x-tr-requestid, x-tr-correlationid'"
+          404:
+            statusCode: "404"
+            responseParameters:
+              method.response.header.Access-Control-Allow-Origin: "'*'"
+              method.response.header.Access-Control-Expose-Headers: "'authorization, content-encoding, content-length, content-type, x-tr-requestid, x-tr-correlationid'"
+          500:
+            statusCode: "500"
+            responseParameters:
+              method.response.header.Access-Control-Allow-Origin: "'*'"
+              method.response.header.Access-Control-Expose-Headers: "'authorization, content-encoding, content-length, content-type, x-tr-requestid, x-tr-correlationid'"
+      parameters:
+        - name: universe
+          in: path
+          description: The entity universe e.g. RIC name
+          required: true
+          type: string
+
+        # - name: x-ts-continuation
+        #   in: header
+        #   description: Request informaton for processing real-time continuation
+        #   required: false
+        #   type: string
+        #   enum:
+        #     - enable
+
+        - name: eventTypes
+          in: query
+          description: |
+            The list of market events (comma delimited) supports the values of trade, quote and correction for event types.
+            Note: Currently, event interleaving supports specifying a single event type and a combination of trade/quote in the eventType parameter.
+            Data belonged to the correction event will not be returned when the correction event is specified in conjunction to other event types. However, only the data belonged to the correction event is returned if the correction event type is specified as the first element in eventType.
+            See more details on "Multiple Event Types" in Reference.
+            * trade
+            * quote
+            * correction - exchange and manual corrections from all events
+          required: false
+          type: array
+          collectionFormat: csv
+          uniqueItems: true
+          items:
+            type: string
+            enum:
+              - trade
+              - quote
+              - correction
+
+        - name: start
+          in: query
+          description: | 
+            The start date and timestamp of the query in ISO8601 with UTC only e.g 2018-01-01T09:00:00.000000000Z. 
+            * Local time is not support.
+            * This parameter support time up to nanoseconds granularity. However the acutal granularity to filter time depends on the database time in the backend.
+            * Currently backend can filter time with millisecond granularity. 
+            * See more details on "Start / End / Count Behavior" in Reference.
+          required: false
+          type: string
+
+        - name: end
+          in: query
+          description: | 
+            The end date and timestamp of the query in ISO8601 with UTC only e.g 2018-01-01T09:00:00.000000000Z. 
+            * Local time is not support.
+            * This parameter support time up to nanoseconds granularity. However the acutal granularity to filter time depends on the database time in the backend.
+            * Currently backend can filter time with millisecond granularity. 
+            * See more details on "Start / End / Count Behavior" in Reference.
+          required: false
+          type: string
+
+        - name: adjustments
+          in: query
+          description: |
+            The list of adjustment types (comma delimiter) that tells the system whether to apply or not apply CORAX (Corporate Actions) events or exchange/manual corrections or price and volume adjustment according to trade/quote qualifier summarization actions to historical time series data.
+            * If _unspecified_, the response will be controlled by each back-end service with the proper adjustments in the response so that the clients know which adjustment types are applied by default. In this case, the returned data will be applied with exchange and manual corrections and without being applied with CORAX adjustments and price/volume adjustment according to trade/quote qualifier summarization actions.
+            * If _specified_, it means that the clients want to get some specific adjustment types applied or even unadjusted.
+
+            Normally, the back-end should strictly serve what clients need. However, if the back-end cannot support them, back-end can still return the form that the back-end supports with the proper adjustments in the response together with status block (if applicable) instead of an error message.
+
+            The supported values of adjustments :
+            * unadjusted - Not apply both exchange/manual corrections and CORAX
+            * exchangeCorrection - Apply exchange correction adjustment to historical pricing
+            * manualCorrection - Apply manual correction adjustment to historical pricing i.e. annotations made by content analysts
+            * CCH - Apply Capital Change adjustment to historical Pricing due to Corporate Actions e.g. stock split
+            * CRE - Apply Currency Redenomination adjustment when there is redenomination of currency
+            * RPO - Apply Reuters Price Only adjustment to adjust historical price only not volume
+            * RTS - Apply Reuters TimeSeries adjustment to adjust both historical price and volume
+            * qualifiers - Apply price or volume adjustment to historical pricing according to trade/quote qualifier summarization actions e.g. noPrice, noVolume, noPriceAndVolume, noBid, noAsk, noBidAndAsk, outOfSessionIntraday, outOfSessionInterday
+            
+            Notes:
+            1. In case that the requested event type is "correction" only, even though correction message itself is not applicable to correction application, for simplicity and avoiding confusion when making individual correction event vs together with other event types, the system should still set "adjustments" in the response following the requested or default "adjustments".
+            2. unadjusted will be ignored when other values are specified.
+            3. qualifiers will be ignored when exchangeCorrection or manualCorrection is not specified
+
+            Limitations:
+            Adjustment behaviors listed in the limitation section may be changed or improved in the future.
+            1. In case of any combination of correction types is specified (i.e. exchangeCorrection or manualCorrection), all correction types will be applied to data in applicable event types.
+            2. In case of any combination of CORAX is specified (i.e. CCH, CRE, RPO, and RTS), all CORAX will be applied to data in applicable event types.
+          required: false
+          type: array
+          collectionFormat: csv
+          uniqueItems: true
+          items:
+            type: string
+            enum:
+              - unadjusted
+              - exchangeCorrection
+              - manualCorrection
+              - CCH
+              - CRE
+              - RPO
+              - RTS
+              - qualifiers
+
+        - name: count
+          in: query
+          description: The maximum number of data returned. If count is smaller than the total amount of data of the time range specified, some data (the oldest) will not be delivered. To retrieve all available data with in the time range specified, this parameter should not be specified. The returned data could be less than the number requested if there are not enough data with in the time range specified. If not specified, count will default to 20 unless both the start and end parameters are also specified. The maximum returned data is 10,000. The mininum value for this parameter is 1. Negative value is not supported. See more details on "Start / End / Count Behavior" in Reference.
+          required: false
+          type: integer
+          minimum: 1
+
+        - name: fields
+          in: query
+          description: |
+            The comma separated list of fields that are to be returned in the response. The fields value is case-sensitive, can be specified only with alphanumeric or underscore characters, and cannot be empty.
+            If the requested fields are not valid or not available for the given RIC universe, the back-end still returns the response of the valid fields (if available) together with the status block to indicate the unsupported fields.
+            Currently, the Historical Pricing Events path does not support this attribute. The fields attribute will be supported soon.
+          required: false
+          type: array
+          collectionFormat: csv
+          items:
+            type: string
+
+        - name: sessions
+          in: query
+          description: |
+            The list of market session classification (comma delimiter) that tells the system to return historical time series data based on the market session definition (market open/market close).
+            * If _unspecified_, all data within the query range will be returned without taking market session definition into consideration.
+            * If _specified_, only data from specific market session classification within the query range will be returned.
+
+            The supported values of market session classification are:
+            * normal - Normal market session
+            * pre - Pre-market session
+            * post - Post-market session
+
+          required: false
+          type: array
+          collectionFormat: csv
+          uniqueItems: true
+          items:
+            type: string
+            enum:
+              - normal
+              - pre
+              - post
+
+      responses:
+        200:
+          description: Successful response
+          schema:
+            $ref: "#/definitions/historicalPricingData"
+        default:
+          description: Error response
+          schema:
+            $ref: "#/definitions/error"
+      security:
+        - sts_auth:
+          - trapi.data.historical-pricing.events.read
+    options: # CORS pre-flight request handler
+      x-tr-integration:
+        type: mock
+        httpMethod: GET
+        uri: "http://localhost/"
+        passthroughBehavior: WHEN_NO_TEMPLATE
+        responses:
+          200:
+            responseParameters:
+              method.response.header.Access-Control-Allow-Origin: "'*'"
+              method.response.header.Access-Control-Allow-Headers: "'authorization, content-encoding, content-length, content-type, x-tr-requestid, x-tr-correlationid'"
+      parameters:
+        - in: path
+          name: universe
+          type: string
+          required: true
+      responses:
+        200:
+          description: Generic OPTIONS response
+  /views/single-event/{universe}:
+    x-summary: A latest historical pricing event data
+    get:
+      description: To retrieve a single record of time series pricing events (i.e. trades, quotes and corrections) data. The default timeout is 3 minutes.
+      x-tr-integration:
+        limits:
+          - type: operationRate
+            rate: 260
+            burst: 260
+          - type: userRate
+            rate: 50
+            burst: 50
+        type: http
+        httpMethod: GET
+        uri: <% .uri_intra %>/data/historical-pricing/v1/views/events/{universe}
+        passthroughBehavior: WHEN_NO_TEMPLATE
+        requestParameters:
+          integration.request.header.x-ts-requestID: context.requestID
+          integration.request.header.x-ts-uuid: context.uuid
+          integration.request.header.x-ts-applicationID: context.clientID
+          integration.request.header.x-ts-productID: "'EDS_AGW:PRICING'"
+          integration.request.path.universe: method.request.path.universe
+          integration.request.querystring.eventTypes: method.request.querystring.eventTypes
+          integration.request.querystring.start: method.request.querystring.start
+          integration.request.querystring.end: method.request.querystring.end
+          integration.request.querystring.count: "'1'"
+          integration.request.querystring.fields: method.request.querystring.fields
+          integration.request.querystring.adjustments: method.request.querystring.adjustments
+          integration.request.querystring.sessions: method.request.querystring.sessions
+        responses:
+          200:
+            statusCode: "200"
+            responseParameters:
+              method.response.header.Access-Control-Allow-Origin: "'*'"
+              method.response.header.Access-Control-Expose-Headers: "'authorization, content-encoding, content-length, content-type, x-tr-requestid, x-tr-correlationid'"
+          400:
+            statusCode: "400"
+            responseParameters:
+              method.response.header.Access-Control-Allow-Origin: "'*'"
+              method.response.header.Access-Control-Expose-Headers: "'authorization, content-encoding, content-length, content-type, x-tr-requestid, x-tr-correlationid'"
+          404:
+            statusCode: "404"
+            responseParameters:
+              method.response.header.Access-Control-Allow-Origin: "'*'"
+              method.response.header.Access-Control-Expose-Headers: "'authorization, content-encoding, content-length, content-type, x-tr-requestid, x-tr-correlationid'"
+          500:
+            statusCode: "500"
+            responseParameters:
+              method.response.header.Access-Control-Allow-Origin: "'*'"
+              method.response.header.Access-Control-Expose-Headers: "'authorization, content-encoding, content-length, content-type, x-tr-requestid, x-tr-correlationid'"
+      parameters:
+        - name: universe
+          in: path
+          description: The entity universe e.g. RIC name
+          required: true
+          type: string
+
+        # - name: x-ts-continuation
+        #   in: header
+        #   description: Request informaton for processing real-time continuation
+        #   required: false
+        #   type: string
+        #   enum:
+        #     - enable
+
+        - name: eventTypes
+          in: query
+          description: |
+            The list of market events (comma delimited) supports the values of trade, quote and correction for event types.
+            Note: Currently, event interleaving supports specifying a single event type and a combination of trade/quote in the eventType parameter.
+            If a request to the single-event API includes both trade and quote, the returned data includes only a single data point of either trade or quote event whichever comes later.
+            Data belonged to the correction event will not be returned when the correction event is specified in conjunction to other event types. However, only the data belonged to the correction event is returned if the correction event type is specified as the first element in eventType.
+            See more details on "Multiple Event Types" in Reference.
+            * trade
+            * quote
+            * correction - exchange and manual corrections from all events
+          required: false
+          type: array
+          collectionFormat: csv
+          uniqueItems: true
+          items:
+            type: string
+            enum:
+              - trade
+              - quote
+              - correction
+
+        - name: start
+          in: query
+          description: | 
+            The start date and timestamp of the query in ISO8601 with UTC only e.g 2018-01-01T09:00:00.000000000Z. 
+            * Local time is not support.
+            * This parameter support time up to nanoseconds granularity. However the acutal granularity to filter time depends on the database time in the backend.
+            * Currently backend can filter time with millisecond granularity. 
+            * See more details on "Start / End / Count Behavior" in Reference.
+          required: false
+          type: string
+
+        - name: end
+          in: query
+          description: | 
+            The end date and timestamp of the query in ISO8601 with UTC only e.g 2018-01-01T09:00:00.000000000Z. 
+            * Local time is not support.
+            * This parameter support time up to nanoseconds granularity. However the acutal granularity to filter time depends on the database time in the backend.
+            * Currently backend can filter time with millisecond granularity. 
+            * See more details on "Start / End / Count Behavior" in Reference.
+          required: false
+          type: string
+
+        - name: adjustments
+          in: query
+          description: |
+            The list of adjustment types (comma delimiter) that tells the system whether to apply or not apply CORAX (Corporate Actions) events or exchange/manual corrections or price and volume adjustment according to trade/quote qualifier summarization actions to historical time series data.
+            * If _unspecified_, the response will be controlled by each back-end service with the proper adjustments in the response so that the clients know which adjustment types are applied by default. In this case, the returned data will be applied with exchange and manual corrections and without being applied with CORAX adjustments and price/volume adjustment according to trade/quote qualifier summarization actions.
+            * If _specified_, it means that the clients want to get some specific adjustment types applied or even unadjusted.
+
+            Normally, the back-end should strictly serve what clients need. However, if the back-end cannot support them, back-end can still return the form that the back-end supports with the proper adjustments in the response together with status block (if applicable) instead of an error message.
+
+            The supported values of adjustments :
+            * unadjusted - Not apply both exchange/manual corrections and CORAX
+            * exchangeCorrection - Apply exchange correction adjustment to historical pricing
+            * manualCorrection - Apply manual correction adjustment to historical pricing i.e. annotations made by content analysts
+            * CCH - Apply Capital Change adjustment to historical Pricing due to Corporate Actions e.g. stock split
+            * CRE - Apply Currency Redenomination adjustment when there is redenomination of currency
+            * RPO - Apply Reuters Price Only adjustment to adjust historical price only not volume
+            * RTS - Apply Reuters TimeSeries adjustment to adjust both historical price and volume
+            * qualifiers - Apply price or volume adjustment to historical pricing according to trade/quote qualifier summarization actions e.g. noPrice, noVolume, noPriceAndVolume, noBid, noAsk, noBidAndAsk, outOfSessionIntraday, outOfSessionInterday
+            
+            Notes:
+            1. In case that the requested event type is "correction" only, even though correction message itself is not applicable to correction application, for simplicity and avoiding confusion when making individual correction event vs together with other event types, the system should still set "adjustments" in the response following the requested or default "adjustments".
+            2. unadjusted will be ignored when other values are specified.
+            3. qualifiers will be ignored when exchangeCorrection or manualCorrection is not specified
+
+            Limitations:
+            Adjustment behaviors listed in the limitation section may be changed or improved in the future.
+            1. In case of any combination of correction types is specified (i.e. exchangeCorrection or manualCorrection), all correction types will be applied to data in applicable event types.
+            2. In case of any combination of CORAX is specified (i.e. CCH, CRE, RPO, and RTS), all CORAX will be applied to data in applicable event types.
+          required: false
+          type: array
+          collectionFormat: csv
+          uniqueItems: true
+          items:
+            type: string
+            enum:
+              - unadjusted
+              - exchangeCorrection
+              - manualCorrection
+              - CCH
+              - CRE
+              - RPO
+              - RTS
+              - qualifiers
+
+        - name: fields
+          in: query
+          description: |
+            The comma separated list of fields that are to be returned in the response. The fields value is case-sensitive, can be specified only with alphanumeric or underscore characters, and cannot be empty.
+            If the requested fields are not valid or not available for the given RIC universe, the back-end still returns the response of the valid fields (if available) together with the status block to indicate the unsupported fields.
+            Currently, the Historical Pricing Events path does not support this attribute. The fields attribute will be supported soon.
+          required: false
+          type: array
+          collectionFormat: csv
+          items:
+            type: string
+
+        - name: sessions
+          in: query
+          description: |
+            The list of market session classification (comma delimiter) that tells the system to return historical time series data based on the market session definition (market open/market close).
+            * If _unspecified_, all data within the query range will be returned without taking market session definition into consideration.
+            * If _specified_, only data from specific market session classification within the query range will be returned.
+
+            The supported values of market session classification are:
+            * normal - Normal market session
+            * pre - Pre-market session
+            * post - Post-market session
+
+          required: false
+          type: array
+          collectionFormat: csv
+          uniqueItems: true
+          items:
+            type: string
+            enum:
+              - normal
+              - pre
+              - post
+
+      responses:
+        200:
+          description: Successful response
+          schema:
+            $ref: "#/definitions/historicalPricingData"
+        default:
+          description: Error response
+          schema:
+            $ref: "#/definitions/error"
+      security:
+        - sts_auth:
+          - trapi.data.historical-pricing.events.read
+    options: # CORS pre-flight request handler
+      x-tr-integration:
+        type: mock
+        httpMethod: GET
+        uri: "http://localhost/"
+        passthroughBehavior: WHEN_NO_TEMPLATE
+        responses:
+          200:
+            responseParameters:
+              method.response.header.Access-Control-Allow-Origin: "'*'"
+              method.response.header.Access-Control-Allow-Headers: "'authorization, content-encoding, content-length, content-type, x-tr-requestid, x-tr-correlationid'"
+      parameters:
+        - in: path
+          name: universe
+          type: string
+          required: true
+      responses:
+        200:
+          description: Generic OPTIONS response
+definitions:
+  historicalPricingData:
+      type: array
+      items:
+        type: object
+        required:
+          #- dataService #still not finalised how we would like to present this information, can be added later.
+          - universe
+        properties:
+          #dataService:
+          #  type: string
+          universe:
+            type: object
+            properties:
+              ric:
+                type: string
+          interval:
+            type: string
+            description: The consolidation interval for summaries data only.
+          summaryTimestampLabel:
+            type: string
+            enum:
+              - startPeriod
+              - endPeriod
+          adjustments:
+            description: |
+              The list of adjustments types (comma delimiter) which the back-end applied to the returned historical time series data.
+              The supported values of adjustments
+              * unadjusted - Not apply both exchange/manual corrections and CORAX
+              * exchangeCorrection - Apply exchange correction adjustment to historical pricing
+              * manualCorrection - Apply manual correction adjustment to historical pricing i.e. annotations made by content analysts
+              * CCH - Apply Capital Change adjustment to historical Pricing due to Corporate Actions e.g. stock split
+              * CRE - Apply Currency Redenomination adjustment when there is redenomination of currency
+              * RPO - Apply Reuters Price Only adjustment to adjust historical price only not volume
+              * RTS - Apply Reuters TimeSeries adjustment to adjust both historical price and volume
+              * qualifiers - Apply price or volume adjustment to historical pricing according to trade/quote qualifier summarization actions e.g. noPrice, noVolume, noPriceAndVolume, noBid, noAsk, noBidAndAsk, outOfSessionIntraday, outOfSessionInterday. This adjustment is for events data only.
+            type: array
+            items:
+              type: string
+              enum:
+              - unadjusted
+              - exchangeCorrection
+              - manualCorrection
+              - CCH
+              - CRE
+              - RPO
+              - RTS
+              - qualifiers
+          defaultPricingField:
+            type: string
+          qos:
+            type: object
+            description:  The quality of service of the user for a given RIC universe for the delayed users. The back-end will only return qos (QoS Delayed) for delayed  users no matter whether the query range [start,end) is within the exchange embargo period (e.g. 15 minute delay) or not. The data in the response may or may not be truncated due to the exchange embargo period.
+            required:
+            - timeliness
+            properties:
+              timeliness:
+                type: string
+                description: Timeliness information
+                enum:
+                - delayed
+          headers:
+            type: array
+            description: The headers section of tabular respose
+            items:
+              type: object
+              required:
+              - name
+              - type
+              properties:
+                name:
+                  type: string
+                  description: field name
+                type:
+                  type: string
+                  description: Json data type i.e. string, number
+                decimalChar:
+                  type: string
+                  description: The decimal character used for decimal number
+                isEnum:
+                  type: boolean
+                  description: The boolean indicating an enumerated field
+          data:
+            type: array
+            items:
+              type: array
+              items:
+                description: The data value associated with the headers. For the numeric value, scientific notation is not used.
+                type: [string, number]
+          meta:
+            type: object
+            properties:
+              blendingEntry:
+                type: object
+                properties:
+                  headers:
+                    type: array
+                    items:
+                      type: object
+                      required:
+                      - name
+                      - type
+                      properties:
+                        name:
+                          type: string
+                        type:
+                          type: string
+                          description: Json data type i.e. string, number.
+                        decimalChar:
+                          type: string
+                          description: The decimal character used for decimal number.
+                        isEnum:
+                          type: boolean
+                          description: The boolean indicates an enumerated field.
+                  data:
+                    type: array
+                    items:
+                      type: array
+                      items:
+                        type: [string, number]
+          status:
+            $ref: "#/definitions/status"
+          #messages:
+          #  type: object
+          #  properties:
+          #    codes:
+          #      type: array
+          #      items:
+          #        type: array
+          #        items:
+          #          type: integer
+          #    descriptions:
+          #      type: array
+          #      items:
+          #        type: object
+          #        properties:
+          #          code:
+          #            type: integer
+          #          description:
+          #            type: string
+    #links:
+    # type: object
+    # properties:
+    #    count:
+    #      type: integer
+  status:
+        type: object
+        description: Message status object
+        required:
+          - code
+          - message
+        properties:
+          code:
+            type: string
+            description: 'An application-specific status code, expressed as a string value'
+            title: Status code
+          message:
+            type: string
+            description: >-
+              A human-readable explanation/reason specific to this occurrence of
+              the problem. This field's value can be localized.
+            title: Status message
+  error:
+    type: object
+    required:
+      - error
+    properties:
+      error:
+        type: object
+        description: Error object
+        required:
+          - id
+          - status
+          - message
+        properties:
+          id:
+            type: string
+            description: A unique UUID tracking/correlation ID for that request
+            title: Request ID
+            example: 08e7a481-37ad-4adf-9dd3-6e302f30f59e
+          code:
+            type: string
+            description: An application-specific error code, expressed as a string value
+            title: Error code
+          status:
+            type: string
+            description: 'The HTTP status code i.e. "400", "500" etc.'
+            title: HTTP status
+          message:
+            type: string
+            description: >-
+              A human-readable explanation/reason specific to this occurrence of
+              the problem. This field's value can be localized.
+            title: Error message
+          errors:
+            type: array
+            description: >-
+              Additional information about problems encountered while performing
+              an operation, an object containing references to the source of the
+              error. Present only on 400 http status.
+            items:
+              type: object
+              required:
+                - key
+                - reason
+              properties:
+                key:
+                  type: string
+                  description: 'The key in the request/path that causing the error, can be the name of a header, query parameter of json body in get/post request'
+                  title: key
+                reason:
+                  type: string
+                  description: 'The reason/cause of the error.'
+                  title: value
+                invalidValues:
+                  type: array
+                  description: 'Invalid values causing the error: it is an array'
+                  items:
+                    type: string
+                name:
+                  type: string
+                  description: The field name causing the error
+                  title: name
