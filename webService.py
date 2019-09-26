@@ -6,8 +6,8 @@ import datetime
 
 def runTest():
     config = Config()
-    testSuites = config.getTestSuites()
-    interdaySummariesTestCase(config)
+    interdaySummaries(config)
+    
     
 def loadTestData(path):
     testcases = []
@@ -18,13 +18,14 @@ def loadTestData(path):
     testcases = [x.strip() for x in testcases]
     return testcases[1:]
     
-def interdaySummariesTestCase(config):
-    testSuite = "Interday_Summaries"
-    roundOfTest = config.getRoundOfTest(testSuite)
-    testSuiteEndPoint= config.getTestSuiteEndPoint(testSuite)
+def interdaySummaries(config):
+    interface = "Interday_Summaries"
+    testSuite = "InterdaySummaries"
+    roundOfTest = config.getRoundOfTest(interface, testSuite)
+    testSuiteEndPoint= config.getTestSuiteEndPoint(interface, testSuite)
     endPointData = config.getEndPointsData(testSuiteEndPoint)
-    headerData = config.getHeaderData(testSuite)
-    testDataFile = config.getTestDataFile(testSuite, 'InterdaySummaries')
+    headerData = config.getHeaderData()
+    testDataFile = config.getTestDataFile(interface, testSuite)
     csvData = loadTestData(testDataFile)
     for e in csvData:
         data = e.split(',')
@@ -46,7 +47,7 @@ def interdaySummariesTestCase(config):
         requestURL = interdaySummariesModel.getURL()
 
         # print('url: {}'.format(requestURL))
-        logging.basicConfig(filename='./log/interdaySummariesTestCase{}.log'.format(datetime.datetime.now().strftime('%Y-%m-%dT%H_%M_%S')), level=logging.DEBUG)
+        logging.basicConfig(filename='./log/interdaySummaries{}.log'.format(datetime.datetime.now().strftime('%Y-%m-%dT%H_%M_%S')), level=logging.DEBUG)
         logging.debug(requestURL)
 
 runTest()

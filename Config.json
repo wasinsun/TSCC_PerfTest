@@ -19,47 +19,43 @@
 			"Path_BC": "/data/intradaytsws/BreadcrumbLogs"
 		}
     },
-    "TestSuites":{
+    "Header": {"applicationID": "perfTest",
+        "Accept-Encoding": "gzip, deflate",
+        "Content-Type": "application/json",
+        "E2EBusinessProcessID": "businessID",
+        "E2ETraceBC": "True",
+        "E2ETraceRequestID": "guid",
+        "x-ts-applicationID": "E2EPerf",
+        "x-ts-uuid": "permission",
+        "x-ts-requestID": "guid",
+        "x-ts-productID": "E2EPerf"
+    },
+    "Interfaces":{
         "Interday_Summaries": {
-            "EndPoint": "INTRA_VIP_POD_INT",
-            "RoundOfTest": 10,
-            "Header": {"applicationID": "perfTest",
-                "Accept-Encoding": "gzip, deflate",
-                "Content-Type": "application/json",
-                "E2EBusinessProcessID": "businessID",
-                "E2ETraceBC": "True",
-                "E2ETraceRequestID": "guid",
-                "x-ts-applicationID": "E2EPerf",
-                "x-ts-uuid": "permission",
-                "x-ts-requestID": "guid",
-                "x-ts-productID": "E2EPerf"
-            },
-            "TestDataFile":{
-                "InterdayHistoricalPricingCRDSingleRicTestCase":"./InterdayHistoricalPricingQualityReview.csv",
-                "InterdayHistoricalPricingForEikonTestCase":"./InterdayHistoricalPricingForEikonTestData.csv",
-                "InterdaySummaries":"./InterdaySummaries.csv"
+            "RequsetParams": ["TestCase","RIC","Interval","Start","End","Adjustments","Field","Count"],
+            "TestSuites":{
+                "InterdaySummaries":{
+                    "DataFile":"./InterdaySummaries.csv",
+                    "EndPoint": "INTRA_VIP_POD_INT",
+                    "RoundOfTest": 10
+                },
+                "InterdaySummaries_2":{
+                    "DataFile":"./InterdaySummaries_2.csv",
+                    "EndPoint": "INTRA_VIP_POD_INT",
+                    "RoundOfTest": 10
+                }            
             }
         },
         "Intraday_Summaries": {
-            "EndPoint": "INTRA_POD_INT_2",
-            "RoundOfTest": 10,
-            "Header": {"applicationID": "perfTest",
-                "Accept-Encoding": "gzip, deflate",
-                "Content-Type": "application/json",
-                "E2EBusinessProcessID": "businessID",
-                "E2ETraceBC": "True",
-                "E2ETraceRequestID": "guid",
-                "x-ts-applicationID": "E2EPerf",
-                "x-ts-uuid": "permission",
-                "x-ts-requestID": "guid",
-                "x-ts-productID": "E2EPerf"
-            },
-            "TestDataFile":{
-                "EODHistoricalPricingCRDSingleRicTestCase":"./Intraday_HistoricalPricingCRDSingleRicTestData.csv",
-				"EODHistoricalPricingEikonSingleRicTestCase":"./Intraday_HistoricalPricingEikonSingleRicTestData.csv",
-				"SingleRicTestCase":"./Intraday_SingleRicTestData.csv",
-				"MultiRicTestCase":"./Intraday_MultipleRicTestData.csv"
+            "RequsetParams": ["TestCase","RIC","Interval","Start","End","Adjustments","Field","Count"],
+            "TestSuites":{
+                "InterdaySummaries":{
+                    "DataFile":"./IntradaySummaries.csv",
+                    "EndPoint": "INTRA_VIP_POD_INT",
+                    "RoundOfTest": 10
+                }           
             }
         }
     }
+
 }

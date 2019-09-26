@@ -25,21 +25,24 @@ class Config:
     def getEndPointsBC_Path(self,EndPoint):
         return self.config['EndPoints'][EndPoint]['Path_BC']
 
-    def getHeaderData(self, TestSuite):
-        return self.config['TestSuites'][TestSuite]['Header']
+    def getHeaderData(self):
+        return self.config['Header']
 
-    def getTestSuites(self):
-        return self.config['TestSuites']
+    def getInterfaces(self):
+        return self.config['Interfaces']
 
-    def getTestSuiteEndPoint(self,TestSuite):
-        return self.config['TestSuites'][TestSuite]['EndPoint']
+    def getTestSuites(self, Interface):
+        return self.config['Interfaces'][Interface]['TestSuites']
 
-    def getTestCasesEndPointURL(self,TestSuite):
-        endPoint = self.getTestSuiteEndPoint(TestSuite)
+    def getTestSuiteEndPoint(self, Interface, TestSuite):
+        return self.config['Interfaces'][Interface]['TestSuites'][TestSuite]['EndPoint']
+
+    def getTestSuiteEndPointURL(self, Interface, TestSuite):
+        endPoint = self.getTestSuiteEndPoint(Interface, TestSuite)
         return self.getEndPointsHostname(endPoint)
 
-    def getRoundOfTest(self, TestSuite):
-        return self.config['TestSuites'][TestSuite]['RoundOfTest']
+    def getRoundOfTest(self, Interface, TestSuite):
+        return self.config['Interfaces'][Interface]['TestSuites'][TestSuite]['RoundOfTest']
 
-    def getTestDataFile(self, TestSuite, TestCase):
-        return os.path.abspath(self.config['TestSuites'][TestSuite]['TestDataFile'][TestCase])
+    def getTestDataFile(self, Interface, TestSuite):
+        return os.path.abspath(self.config['Interfaces'][Interface]['TestSuites'][TestSuite]['DataFile'])

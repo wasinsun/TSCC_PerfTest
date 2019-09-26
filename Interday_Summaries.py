@@ -5,7 +5,7 @@ import datetime,calendar
 config = Config()
 class InterdaySummariesModel:
     def __init__(self):
-        self.url = self.setUrl(endpoint=config.getTestCasesEndPointURL('Interday_Summaries'))
+        self.url = self.setUrl(endpoint=config.getTestSuiteEndPointURL('Interday_Summaries', 'InterdaySummaries'))
         self.ric = ''
         self.queryString = {
             "interval":"",
