@@ -51,7 +51,7 @@ class EventsModel:
     def setCount(self,count):
         self.queryString['count'] = count
 
-    def setSessions(self,count):
+    def setSessions(self,sessions):
         self.queryString['sessions'] = sessions
     
     def setDateByStartEnd(self,start,end):
