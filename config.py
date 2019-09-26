@@ -31,12 +31,12 @@ class Config:
     def getTestSuites(self):
         return self.config['TestSuites']
 
-    def getTestCasesEndPoint(self,TestSuite):
+    def getTestSuiteEndPoint(self,TestSuite):
         return self.config['TestSuites'][TestSuite]['EndPoint']
 
     def getTestCasesEndPointURL(self,TestSuite):
-        endPointTestCase = self.getTestCasesEndPoint(TestSuite)
-        return self.getEndPointsHostname(endPointTestCase)
+        endPoint = self.getTestSuiteEndPoint(TestSuite)
+        return self.getEndPointsHostname(endPoint)
 
     def getRoundOfTest(self, TestSuite):
         return self.config['TestSuites'][TestSuite]['RoundOfTest']

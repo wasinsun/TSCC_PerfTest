@@ -18,7 +18,8 @@ def loadTestData(path):
 def interdaySummariesTestCase(config):
     testSuite = "TestSuite_1"
     roundOfTest = config.getRoundOfTest(testSuite)
-    endPointData = config.getEndPointsData('INTRA_VIP_POD_INT')
+    testSuiteEndPoint= config.getTestSuiteEndPoint(testSuite)
+    endPointData = config.getEndPointsData(testSuiteEndPoint)
     headerData = config.getHeaderData(testSuite)
     testDataFile = config.getTestDataFile(testSuite, 'InterdaySummariesTestCase')
     csvData = loadTestData(testDataFile)
