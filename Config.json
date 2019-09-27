@@ -17,18 +17,13 @@
 			"User": "cloud",
 			"Password": "notwest",
 			"Path_BC": "/data/intradaytsws/BreadcrumbLogs"
+        },
+        "INTER_INT_4": {
+			"Hostname": "c732yfqddep04.int.thomsonreuters.com",
+			"User": "tsuser",
+			"Password": "Trin.19!",
+			"Path_BC": "/data/interdayrestws/BreadcrumbLogs"
 		}
-    },
-    "Header": {"applicationID": "perfTest",
-        "Accept-Encoding": "gzip, deflate",
-        "Content-Type": "application/json",
-        "E2EBusinessProcessID": "businessID",
-        "E2ETraceBC": "True",
-        "E2ETraceRequestID": "guid",
-        "x-ts-applicationID": "E2EPerf",
-        "x-ts-uuid": "permission",
-        "x-ts-requestID": "guid",
-        "x-ts-productID": "E2EPerf"
     },
     "Interfaces":{
         "Interday_Summaries": {
@@ -36,14 +31,9 @@
             "TestSuites":{
                 "InterdaySummaries":{
                     "DataFile":"./InterdaySummaries.csv",
-                    "EndPoint": "INTRA_VIP_POD_INT",
-                    "RoundOfTest": 10
-                },
-                "InterdaySumTest":{
-                    "DataFile":"./InterdaySumTest.csv",
-                    "EndPoint": "INTRA_VIP_POD_INT",
-                    "RoundOfTest": 10
-                }              
+                    "EndPoint": "INTER_INT_4",
+                    "RoundOfTest": 1
+                }            
             }
         },
         "Intraday_Summaries": {

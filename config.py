@@ -25,9 +25,6 @@ class Config:
     def getEndPointsBC_Path(self,EndPoint):
         return self.config['EndPoints'][EndPoint]['Path_BC']
 
-    def getHeaderData(self):
-        return self.config['Header']
-
     def getInterfaces(self):
         return self.config['Interfaces']
 
