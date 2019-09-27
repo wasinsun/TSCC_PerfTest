@@ -25,7 +25,7 @@ class InterdaySummariesModel:
             if self.queryString[k]=="":
                 self.queryString.pop(k)
 
-        path = "data/historical-pricing/v1/views"
+        path = "data/historical-pricing/v1/views/summaries"
         URL = "{url}/{path}/{ric}?{query}".format(url=self.url,path=path,ric=self.ric,query=urllib.parse.urlencode(self.queryString))
         return URL
     

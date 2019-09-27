@@ -32,22 +32,22 @@
     },
     "Interfaces":{
         "Interday_Summaries": {
-            "RequsetParams": ["TestCase","RIC","Interval","Start","End","Adjustments","Field","Count"],
+            "RequestParams": ["TestCase","RIC","Interval","Start","End","Adjustments","Field","Count"],
             "TestSuites":{
                 "InterdaySummaries":{
                     "DataFile":"./InterdaySummaries.csv",
                     "EndPoint": "INTRA_VIP_POD_INT",
                     "RoundOfTest": 10
                 },
-                "InterdaySummaries_2":{
-                    "DataFile":"./InterdaySummaries_2.csv",
+                "InterdaySumTest":{
+                    "DataFile":"./InterdaySumTest.csv",
                     "EndPoint": "INTRA_VIP_POD_INT",
                     "RoundOfTest": 10
-                }            
+                }              
             }
         },
         "Intraday_Summaries": {
-            "RequsetParams": ["TestCase","RIC","Interval","Start","End","Adjustments","Field","Count"],
+            "RequestParams": ["TestCase","RIC","Interval","Start","End","Adjustments","Field","Count","Sessions"],
             "TestSuites":{
                 "InterdaySummaries":{
                     "DataFile":"./IntradaySummaries.csv",

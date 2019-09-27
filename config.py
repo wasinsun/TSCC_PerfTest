@@ -46,3 +46,6 @@ class Config:
 
     def getTestDataFile(self, Interface, TestSuite):
         return os.path.abspath(self.config['Interfaces'][Interface]['TestSuites'][TestSuite]['DataFile'])
+
+    def getRequestParams(self, Interface):
+        return self.config['Interfaces'][Interface]['RequestParams']
