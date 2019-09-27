@@ -60,8 +60,8 @@ def interdaySummaries(config):
                 requestURL = interdaySummariesModel.getURL()
 
                 print('url: {}'.format(urllib.parse.unquote(requestURL)))
-                # logging.basicConfig(filename='./log/interdaySummaries{}.log'.format(datetime.datetime.now().strftime('%Y-%m-%dT%H_%M_%S')), level=logging.DEBUG)
-                # logging.debug(requestURL)
+                logging.basicConfig(filename='./log/interdaySummaries{}.log'.format(datetime.datetime.now().strftime('%Y-%m-%dT%H_%M_%S')), level=logging.DEBUG)
+                logging.debug(urllib.parse.unquote(requestURL))
         else:
             print("Please Check column's name of {}.csv !".format(testSuite))
             
