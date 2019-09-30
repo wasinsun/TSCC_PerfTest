@@ -122,6 +122,8 @@ def interdaySummaries(config):
                 rounds += 1
 
             result_df = pandas.DataFrame(result, columns=columnName)
+            if not os.path.exists('./log'):
+                os.mkdir('./log')
             result_df.to_csv(os.path.join('./log', testSuite + '_' + datetime.datetime.now().strftime('%Y-%m-%dT%H_%M_%S') + '.csv'),index=False)  
 
         else:
