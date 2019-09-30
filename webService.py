@@ -29,12 +29,12 @@ def sendRequest(config, requestURL, businessID, guid, permission):
                'x-ts-productID': 'SingleResponseTime'
                }
 
-    start_time = int(time.time() * 1000)
+    start_time = time.time() * 1000
     request = requests.get(requestURL, headers=headers)
-    end_time = int(time.time() * 1000)  # millisec
+    end_time = time.time() * 1000  # millisec
     response = request.json()
 
-    diffTime = end_time - start_time
+    diffTime = round(((end_time - start_time) / 1000), 3)
     content = response
     count = None
     try:
@@ -117,7 +117,7 @@ def interdaySummaries(config):
                     time, count, start_time, end_time = sendRequest(config, requestURL, businessID, guid, permission)
                     line = [rounds, data[0], guid, str(time), str(count), str(start_time), str(end_time), requestURLStr]
                     result.append(line)
-                    columnName = ["Rounds","TestCaseName", "RequestID","TestResponseTime(ms)","Points","TestStartTime(ms)","TestEndTime(ms)", "RequestURL"]
+                    columnName = ["Rounds","TestCaseName", "RequestID","TestResponseTime(sec)","Points","TestStartTime(ms)","TestEndTime(ms)", "RequestURL"]
                                       
                 rounds += 1
 
