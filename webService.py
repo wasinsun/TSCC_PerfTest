@@ -122,7 +122,7 @@ def interdaySummaries(config):
                     time, count, start_time, end_time, Source = sendRequest(interface, config, requestURL, businessID, guid, permission)
                     line = [rounds, data[0], guid, str(time), str(count), str(start_time), str(end_time), Source, requestURLStr]
                     result.append(line)
-                    columnName = ["Rounds","TestCaseName", "RequestID","TestResponseTime(sec)","Points","TestStartTime(ms)","TestEndTime(ms)", "Source", "RequestURL"]
+                    columnName = ["Rounds","TestCaseName", "RequestID","TestResponseTime(sec)","Count","TestStartTime(ms)","TestEndTime(ms)", "Source", "RequestURL"]
                                       
                 rounds += 1
 
@@ -178,7 +178,7 @@ def summaries(config):
                     time, count, start_time, end_time, Source = sendRequest(interface, config, requestURL, businessID, guid, permission)
                     line = [rounds, data[0], guid, str(time), str(count), str(start_time), str(end_time), requestURLStr]
                     result.append(line)
-                    columnName = ["Rounds","TestCaseName", "RequestID","TestResponseTime(sec)","Points","TestStartTime(ms)","TestEndTime(ms)", "RequestURL"]
+                    columnName = ["Rounds","TestCaseName", "RequestID","TestResponseTime(sec)","Count","TestStartTime(ms)","TestEndTime(ms)", "RequestURL"]
                                         
                 rounds += 1
 
