@@ -23,6 +23,12 @@
 			"User": "tsuser",
 			"Password": "Trin.19!",
 			"Path_BC": "/data/interdayrestws/BreadcrumbLogs"
+        },
+        "TSCC": {
+			"Hostname": "10.42.86.99",
+			"User": "",
+			"Password": "",
+			"Path_BC": ""
 		}
     },
     "Interfaces":{
@@ -31,7 +37,7 @@
             "TestSuites":{
                 "InterdaySummaries":{
                     "DataFile":"./InterdaySummaries.csv",
-                    "EndPoint": "INTER_INT_4",
+                    "EndPoint": "TSCC",
                     "RoundOfTest": 1
                 }            
             }
@@ -44,6 +50,16 @@
                     "EndPoint": "INTRA_VIP_POD_INT",
                     "RoundOfTest": 10
                 }           
+            }
+        },
+        "Summaries": {
+            "RequestParams": ["TestCase","RIC","Interval","Start","End","Adjustments","Field","Count"],
+            "TestSuites":{
+                "InterdaySummaries":{
+                    "DataFile":"./InterdaySummaries.csv",
+                    "EndPoint": "INTER_INT_4",
+                    "RoundOfTest": 1
+                }            
             }
         }
     }

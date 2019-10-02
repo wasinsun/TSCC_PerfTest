@@ -3,9 +3,9 @@ from config import Config
 import datetime,calendar
 
 config = Config()
-class InterdaySummariesModel:
+class SummariesModel:
     def __init__(self):
-        self.url = self.setUrl(endpoint=config.getTestSuiteEndPointURL('Interday_Summaries', 'InterdaySummaries'))
+        self.url = self.setUrl(endpoint=config.getTestSuiteEndPointURL('Summaries', 'InterdaySummaries'))
         self.ric = ''
         self.queryString = {
             "interval":"",
@@ -15,17 +15,17 @@ class InterdaySummariesModel:
             "fields":"",
             "count":""
         }
-
+        self.path = "data/historical-pricing/v1/views/summaries"
+        
     def setUrl(self,protocol='http',endpoint=None,port=8080):
         return "{protocol}://{endpoint}:{port}".format(protocol=protocol,endpoint=endpoint,port=port)
 
     def getURL(self):
+        path = self.path
         keys = self.queryString.keys()
         for k in list(keys):
             if self.queryString[k]=="":
-                self.queryString.pop(k)
-
-        path = "data/historical-pricing/v1/views/summaries"
+                self.queryString.pop(k)     
         URL = "{url}/{path}/{ric}?{query}".format(url=self.url,path=path,ric=self.ric,query=urllib.parse.urlencode(self.queryString))
         return URL
     
@@ -117,4 +117,16 @@ class InterdaySummariesModel:
         self.setStartDate(startDate)
         self.setEndDate(endDate)
     
-    
+class InterdaySummariesModel(SummariesModel):
+    def __init__(self):
+        self.url = self.setUrl(endpoint=config.getTestSuiteEndPointURL('Interday_Summaries', 'InterdaySummaries'))
+        self.ric = ''
+        self.queryString = {
+            "interval":"",
+            "start":"",
+            "end":"",
+            "adjustments":"",
+            "fields":"",
+            "count":""
+        }
+        self.path = "data/historical-pricing/v1/views/interday-summaries"

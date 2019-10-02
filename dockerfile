@@ -5,6 +5,9 @@ WORKDIR /usr/src/app
 COPY requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY . .
+COPY webService.py ./
+COPY config.py ./
+COPY Interday_Summaries.py ./
+COPY InterdaySummaries.csv ./
 
 CMD [ "python", "./webService.py" ]

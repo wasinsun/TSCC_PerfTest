@@ -9,5 +9,5 @@ Dialy single point data,USD1YFSR=X,P1D,,,,,1
 Dialy unadjusted data 25 points,IBM,P1D,,,unadjusted,TRDPRC_1,25
 Dialy unadjusted data 25 points with fields,IBM,P1D,,,unadjusted,THIGH_1|LOW_1|OPEN_PRC|TRDPRC_1|SETTLE|OFF_CLOSE|HST_CLOSE|NUM_MOVES|ACVOL_UNSRDPRC_1,25
 Dialy all adjustement,Cc1,P1D,,,exchangeCorrection|manualCorrection|CCH|CRE|RPO|RTS,,
-Daily data 1M points,Eur=,P1D,,,,BID|OPEN_BID|MID_PRICE|BID_HIGH_1|BID_LOW_1|NUM_BIDS,1000000
+Daily data 1M points,EUR=,P1D,,,,BID|OPEN_BID|MID_PRICE|BID_HIGH_1|BID_LOW_1|NUM_BIDS,1000000
 Daily 12 months data,TRNLTTFFVMc3,P1D,now-12M,now,,,

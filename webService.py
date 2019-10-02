@@ -11,13 +11,14 @@ import uuid
 import pandas
 import os
 
-from Interday_Summaries import InterdaySummariesModel
+from Summaries import SummariesModel, InterdaySummariesModel
 
 def runTest():
     config = Config()
     interdaySummaries(config)
+    summaries(config)
 
-def sendRequest(config, requestURL, businessID, guid, permission):
+def sendRequest(interface, config, requestURL, businessID, guid, permission):
     headers = {'Accept-Encoding': 'gzip, deflate',
                'Content-Type': 'application/json',
                'E2EBusinessProcessID': businessID,
@@ -30,24 +31,28 @@ def sendRequest(config, requestURL, businessID, guid, permission):
                }
 
     start_time = time.time() * 1000
-    request = requests.get(requestURL, headers=headers)
+    response = requests.get(requestURL, headers=headers)
     end_time = time.time() * 1000  # millisec
-    response = request.json()
+    content = response.json()
 
     diffTime = round(((end_time - start_time) / 1000), 3)
-    content = response
     count = None
+    if interface == 'Interday_Summaries':
+        Source = response.headers['Source']
+    else:
+        Source = None
+    
     try:
         for TS in content['timeseriesData']:
             count=len(TS['dataPoints'])
         print('Data point is ' + str(count))
-        return diffTime, count, int(start_time), int(end_time)
+        return diffTime, count, int(start_time), int(end_time), Source
     except:
         try:
             for TS in content:
                 count=len(TS['data'])
             print('Historical Data point is ' + str(count))
-            return diffTime, count, int(start_time), int(end_time)
+            return diffTime, count, int(start_time), int(end_time), Source
         except KeyError as e:
             pprint.pprint(content)
             return 'KeyError',str(e),int(start_time), ''
@@ -114,21 +119,77 @@ def interdaySummaries(config):
                     requestURLStr = urllib.parse.unquote(requestURL)
                     
                     ####Response####
-                    time, count, start_time, end_time = sendRequest(config, requestURL, businessID, guid, permission)
-                    line = [rounds, data[0], guid, str(time), str(count), str(start_time), str(end_time), requestURLStr]
+                    time, count, start_time, end_time, Source = sendRequest(interface, config, requestURL, businessID, guid, permission)
+                    line = [rounds, data[0], guid, str(time), str(count), str(start_time), str(end_time), Source, requestURLStr]
                     result.append(line)
-                    columnName = ["Rounds","TestCaseName", "RequestID","TestResponseTime(sec)","Points","TestStartTime(ms)","TestEndTime(ms)", "RequestURL"]
+                    columnName = ["Rounds","TestCaseName", "RequestID","TestResponseTime(sec)","Points","TestStartTime(ms)","TestEndTime(ms)", "Source", "RequestURL"]
                                       
                 rounds += 1
 
             result_df = pandas.DataFrame(result, columns=columnName)
-            if not os.path.exists('./log'):
-                os.mkdir('./log')
-            result_df.to_csv(os.path.join('./log', testSuite + '_' + datetime.datetime.now().strftime('%Y-%m-%dT%H_%M_%S') + '.csv'),index=False)  
+            logPath = './log/InterdaySummaries'
+            if not os.path.exists(logPath):
+                os.makedirs(logPath)
+            result_df.to_csv(os.path.join(logPath, testSuite + '_' + datetime.datetime.now().strftime('%Y-%m-%dT%H_%M_%S') + '.csv'),index=False)  
+
+        else:
+            print("Please Check column's name of {}.csv !".format(testSuite))
+
+def summaries(config):
+    interface = "Summaries"
+    rounds = 1
+    permission = 'PATSFCP-REALTIME'
+    testSuites = config.getTestSuites(interface)
+    for e in testSuites:
+        testSuite = e
+        roundOfTest = config.getRoundOfTest(interface, testSuite)
+        testSuiteEndPoint= config.getTestSuiteEndPoint(interface, testSuite)
+        endPointData = config.getEndPointsData(testSuiteEndPoint)
+        testDataFile = config.getTestDataFile(interface, testSuite)
+        testSuiteColumnName = getColumnName(testDataFile)
+        configRequestParams = config.getRequestParams(interface)
+        result = []
+        if testSuiteColumnName == configRequestParams:
+            while(rounds <= roundOfTest):
+                print('rounds: {}'.format(rounds))
+                csvData = loadTestData(testDataFile)
+                for e in csvData:
+                    data = e.split(',')
+                    businessID = data[0]
+                    ric = data[1]
+                    interval = data[2]
+                    start = data[3]
+                    end = data[4]
+                    adjustments = data[5].replace('|',',')
+                    fields = data[6].replace('|',',')
+                    count = data[7]
+                    guid = str(uuid.uuid1()).upper()
+                    summariesModel = SummariesModel()
+                    summariesModel.setRic(ric)
+                    summariesModel.setInterval(interval)
+                    summariesModel.setDateByStartEnd(start, end)
+                    summariesModel.setAdjustments(adjustments)
+                    summariesModel.setCount(count)
+                    summariesModel.setFields(fields)
+                    requestURL = summariesModel.getURL()
+                    requestURLStr = urllib.parse.unquote(requestURL)
+                    
+                    ####Response####
+                    time, count, start_time, end_time, Source = sendRequest(interface, config, requestURL, businessID, guid, permission)
+                    line = [rounds, data[0], guid, str(time), str(count), str(start_time), str(end_time), requestURLStr]
+                    result.append(line)
+                    columnName = ["Rounds","TestCaseName", "RequestID","TestResponseTime(sec)","Points","TestStartTime(ms)","TestEndTime(ms)", "RequestURL"]
+                                        
+                rounds += 1
+
+            result_df = pandas.DataFrame(result, columns=columnName)
+            logPath = './log/Summaries'
+            if not os.path.exists(logPath):
+                os.makedirs(logPath)
+            result_df.to_csv(os.path.join(logPath, testSuite + '_' + datetime.datetime.now().strftime('%Y-%m-%dT%H_%M_%S') + '.csv'),index=False)  
 
         else:
             print("Please Check column's name of {}.csv !".format(testSuite))
             
         
-
 runTest()
