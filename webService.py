@@ -15,7 +15,7 @@ from Summaries import SummariesModel, InterdaySummariesModel
 
 def runTest():
     config = Config()
-    interdaySummaries(config)
+    # interdaySummaries(config)
     summaries(config)
 
 def sendRequest(interface, config, requestURL, businessID, guid, permission):
@@ -93,6 +93,7 @@ def interdaySummaries(config):
         testSuiteColumnName = getColumnName(testDataFile)
         configRequestParams = config.getRequestParams(interface)
         result = []
+        print('{}: {}'.format(interface, testSuite))
         if testSuiteColumnName == configRequestParams:
             while(rounds <= roundOfTest):
                 print('rounds: {}'.format(rounds))
@@ -149,6 +150,7 @@ def summaries(config):
         testSuiteColumnName = getColumnName(testDataFile)
         configRequestParams = config.getRequestParams(interface)
         result = []
+        print('{}: {}'.format(interface, testSuite))
         if testSuiteColumnName == configRequestParams:
             while(rounds <= roundOfTest):
                 print('rounds: {}'.format(rounds))
